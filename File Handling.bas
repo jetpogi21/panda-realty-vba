@@ -236,11 +236,11 @@ Public Function PromptFile(Optional FileType As String = "") As String
 End Function
 
 
-Public Function directoryPath(fieldName As String, Optional GlobalSettingName As String) As String
+Public Function directoryPath(FieldName As String, Optional GlobalSettingName As String) As String
     
     Dim strPath As String
-    If fieldName <> "" Then
-        strPath = ELookup("tblUsers", "UserID = " & g_UserID, fieldName)
+    If FieldName <> "" Then
+        strPath = ELookup("tblUsers", "UserID = " & g_UserID, FieldName)
     End If
     
     ''If strPath is "", set the filepath to Default Download Path

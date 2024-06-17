@@ -25,12 +25,12 @@ Public Function HideOrShowColumn(frm As Form, Optional CalledFrom = "mainPropert
     
     Do Until rs.EOF
     
-        Dim isShown, fieldName
-        fieldName = rs.fields("FieldName")
+        Dim isShown, FieldName
+        FieldName = rs.fields("FieldName")
         isShown = rs.fields(isShownField)
         
-        If ControlExists(fieldName, frm("subform").Form) Then
-            frm("subform").Form.Controls(fieldName).ColumnHidden = Not isShown
+        If ControlExists(FieldName, frm("subform").Form) Then
+            frm("subform").Form.Controls(FieldName).ColumnHidden = Not isShown
         End If
         rs.MoveNext
         
@@ -41,8 +41,8 @@ End Function
 Public Function IsShownAfterUpdate(frm As Form, Optional frmName As String = "mainPropertyList")
 
     Dim frm2 As Form
-    Dim fieldName, isShown As Boolean
-    fieldName = frm("FieldName")
+    Dim FieldName, isShown As Boolean
+    FieldName = frm("FieldName")
     isShown = frm("IsShown")
     
     DoCmd.RunCommand acCmdSaveRecord
@@ -72,14 +72,14 @@ Public Function ShowAllPropertyListFields(frm As Form, Optional frmName = "mainP
     
     rs.MoveFirst
     Do Until rs.EOF
-        Dim isShown, fieldName
+        Dim isShown, FieldName
         isShown = rs.fields(isShownField)
-        fieldName = rs.fields("FieldName")
+        FieldName = rs.fields("FieldName")
         
         rs.Edit
         rs.fields(isShownField) = notReversed
         
-        frm2("subform").Form.Controls(fieldName).ColumnHidden = False
+        frm2("subform").Form.Controls(FieldName).ColumnHidden = False
         
         rs.Update
         

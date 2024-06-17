@@ -88,7 +88,7 @@ Public Function ClearFilterEmailRecipients()
     
 End Function
 
-Public Function BuildFromSuccessfulBuyer(PropertyListID, fieldName, Caption, PartOnly) As String
+Public Function BuildFromSuccessfulBuyer(PropertyListID, FieldName, Caption, PartOnly) As String
     
     Dim txtSuccessfulBuyer, frm As Form
     Set frm = Forms("frmPropertyList")
@@ -106,7 +106,7 @@ Public Function BuildFromSuccessfulBuyer(PropertyListID, fieldName, Caption, Par
 
 End Function
 
-Public Function BuildFromPropertyField(PropertyListID, fieldName, Caption, PartOnly, Optional PropertyEmailRecipientID = Null) As String
+Public Function BuildFromPropertyField(PropertyListID, FieldName, Caption, PartOnly, Optional PropertyEmailRecipientID = Null) As String
     
     Dim rs As Recordset
     Set rs = ReturnRecordset("SELECT * FROM tblPropertyList WHERE PropertyListID = " & PropertyListID)
@@ -114,7 +114,7 @@ Public Function BuildFromPropertyField(PropertyListID, fieldName, Caption, PartO
     If rs.EOF Then Exit Function
     
     Dim PropertyArr As New clsArray
-    PropertyArr.Add rs.fields(fieldName)
+    PropertyArr.Add rs.fields(FieldName)
     
     If PartOnly = "Type" Then
         PropertyArr.Add rs.fields("Suburb")
@@ -192,7 +192,7 @@ Public Function BuildEntityMembers(PropertyListID, EntityCategoryName, Caption, 
     
 End Function
 
-Public Function BuildEmailSellers(PropertyListID, fieldName, Caption, PartOnly, Optional PropertyEmailRecipientID = Null)
+Public Function BuildEmailSellers(PropertyListID, FieldName, Caption, PartOnly, Optional PropertyEmailRecipientID = Null)
     
     BuildEmailSellers = "No Seller"
     
@@ -229,7 +229,7 @@ Public Function BuildAdvertisementLink(PropertyListID)
     
 End Function
 
-Public Function BuildEmailRecipients(PropertyListID, fieldName, Caption, PartOnly, Optional EmailRecipientID = Null)
+Public Function BuildEmailRecipients(PropertyListID, FieldName, Caption, PartOnly, Optional EmailRecipientID = Null)
     
     BuildEmailRecipients = "No Recipient"
     
@@ -581,16 +581,16 @@ Private Function BuildEmailRecipientFieldFilters()
 End Function
 
 
-Private Function BuildEmailRecipientFieldFilter(fieldName)
+Private Function BuildEmailRecipientFieldFilter(FieldName)
     
     Dim sqlObj As clsSQL, joinObj As clsJoin, sqlStr, rowsAffected, rs As Recordset
     
     Set sqlObj = New clsSQL
     With sqlObj
         .Source = "tblPropertyEmailRecipients"
-        .AddFilter "NOT " & fieldName & " IS NULL"
-        .fields = fieldName & " AS FilterCaption," & EscapeString(fieldName) & " AS FilterField"
-        .OrderBy = fieldName
+        .AddFilter "NOT " & FieldName & " IS NULL"
+        .fields = FieldName & " AS FilterCaption," & EscapeString(FieldName) & " AS FilterField"
+        .OrderBy = FieldName
         sqlStr = .sql
     End With
     
@@ -917,12 +917,12 @@ Private Function GetEmailPart(EmailPart, PropertyListID, Optional PropertyEmailR
     Dim rs As Recordset
     Set rs = ReturnRecordset("SELECT * FROM tblEmailUsableFields ORDER BY FieldOrder")
     
-    Dim EmailUsableFieldID, FieldCaption, fieldName, FunctionToCall, FieldOrder, fieldValue, PartOnly
+    Dim EmailUsableFieldID, FieldCaption, FieldName, FunctionToCall, FieldOrder, fieldValue, PartOnly
     Do Until rs.EOF
         
         EmailUsableFieldID = rs.fields("EmailUsableFieldID")
         FieldCaption = rs.fields("FieldCaption")
-        fieldName = rs.fields("FieldName")
+        FieldName = rs.fields("FieldName")
         FunctionToCall = rs.fields("FunctionToCall")
         FieldOrder = rs.fields("FieldOrder")
         PartOnly = rs.fields("PartOnly")
@@ -931,7 +931,7 @@ Private Function GetEmailPart(EmailPart, PropertyListID, Optional PropertyEmailR
             If FunctionToCall = "BuildAdvertisementLink" Then
                 fieldValue = Run("BuildAdvertisementLink", PropertyListID)
             Else
-                fieldValue = Run(FunctionToCall, PropertyListID, fieldName, FieldCaption, PartOnly, PropertyEmailRecipientID)
+                fieldValue = Run(FunctionToCall, PropertyListID, FieldName, FieldCaption, PartOnly, PropertyEmailRecipientID)
             End If
             
             EmailPart = replace(EmailPart, "[" & FieldCaption & "]", fieldValue)

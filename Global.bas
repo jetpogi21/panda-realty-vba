@@ -249,7 +249,7 @@ Public Function Insert_Delete_Log(tableName As String, EventName As String, reco
     
 End Function
 
-Public Function Update_Log(tableName As String, oldValue As Variant, newValue As Variant, recordID As Variant, fieldName As String)
+Public Function Update_Log(tableName As String, oldValue As Variant, newValue As Variant, recordID As Variant, FieldName As String)
     
     Dim UserID As Integer
     If isFalse(g_UserID) Then
@@ -269,7 +269,7 @@ Public Function Update_Log(tableName As String, oldValue As Variant, newValue As
     Dim computerName As String: computerName = Environ$("computername")
     DoCmd.SetWarnings False
     DoCmd.RunSQL "INSERT INTO tblLogs (UserID,EventName,ComputerName,TableName,RecordID,OldValue,NewValue,FieldName) VALUES (" & UserID & ",'UPDATE','" & computerName & "'" & _
-                 ",'" & tableName & "','" & recordID & "'," & EscapeString(oldValue) & "," & EscapeString(newValue) & ",'" & fieldName & "')"
+                 ",'" & tableName & "','" & recordID & "'," & EscapeString(oldValue) & "," & EscapeString(newValue) & ",'" & FieldName & "')"
                  
     DoCmd.SetWarnings True
 End Function

@@ -427,6 +427,18 @@ Public Function Copy_tblForm6()
     
 End Function
 
+Public Function Copy_tblContractManualChanges()
+    
+    Dim FEPath, BEPath As String
+    GetFEAndBE FEPath, BEPath
+    If ExitIfTrue(Not fileExists(BEPath), EscapeString(BEPath) & " can't be located..") Then Exit Function
+    
+    If Not TableExists(BEPath, "tblContractManualChanges") Then
+        DoCmd.CopyObject BEPath, "tblContractManualChanges", acTable, "tblContractManualChanges1"
+    End If
+    
+End Function
+
 Public Function Copy_TrustReconciliationTables()
     
     Dim FEPath, BEPath As String

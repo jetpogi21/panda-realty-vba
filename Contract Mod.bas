@@ -85,6 +85,14 @@ Private Function UpdateBaseOnTimeline(EventName, FieldToUpdate, ContractID, Prop
     
 End Function
 
+Public Function AddTo_tblContractManualChanges(ContractID, FieldName)
+    
+    If isFalse(ContractID) Then Exit Function
+    RunSQL "INSERT INTO tblContractManualChanges (ContractID,FieldName) VALUES (" & _
+        ContractID & "," & Esc(FieldName) & ")"
+    
+End Function
+
 Public Function CreateSaleContract(frm As Form)
     
     ''RunSQL "DELETE FROM tblContracts"
@@ -109,8 +117,15 @@ Public Function CreateSaleContract(frm As Form)
     ''RunSQL "UPDATE tblContracts SET TenantID = 0 WHERE ContractID = " & ContractID & " WHERE Tenand
     ''RunSQL "UPDATE tblContracts SET PropertyMangerID = 0 WHERE ContractID = " & ContractID
     UpdateBaseOnTimeline "SETTLEMENT DATE", "SettlementDate", ContractID, PropertyListID
-    UpdateBaseOnTimeline "Finance Due Date", "FinanceDate", ContractID, PropertyListID
-    UpdateBaseOnTimeline "BPI Due", "InspectionDate", ContractID, PropertyListID
+    
+    If Not isPresent("tblContractManualChanges", "ContractID = " & ContractID & " AND FieldName = " & Esc("FinanceDate")) Then
+        UpdateBaseOnTimeline "Finance Due Date", "FinanceDate", ContractID, PropertyListID
+    End If
+    
+    If Not isPresent("tblContractManualChanges", "ContractID = " & ContractID & " AND FieldName = " & Esc("InspectionDate")) Then
+        UpdateBaseOnTimeline "BPI Due", "InspectionDate", ContractID, PropertyListID
+    End If
+
     UpdateBaseOnTimeline "Balance Deposit Due Date", "BalancePayableOn", ContractID, PropertyListID
     
     If Not isFalse(ContractDate) Then
@@ -1249,9 +1264,9 @@ Private Function SetUpForm6Report(frmName, sqlStr, Optional bigCheckBoxUsed As B
                     
                     ctl.Visible = True
                     
-                    Dim newCtl As Control, newCtlName, fieldName
+                    Dim newCtl As Control, newCtlName, FieldName
                     newCtlName = ctlName & "1"
-                    fieldName = replace(ctlName, "cmd", "")
+                    FieldName = replace(ctlName, "cmd", "")
                     
                     newtop = newtop - InchToTwip(0.0175)
                     
@@ -1271,12 +1286,12 @@ Private Function SetUpForm6Report(frmName, sqlStr, Optional bigCheckBoxUsed As B
                     End If
                     
                     ''IIf(fieldValue And Not IsNull(fieldValue), ChrW$(10004), " ")
-                    If fieldName Like "*_0" Then
-                        newCtl.ControlSource = "=iif(Not [" & RemoveLastTwoChars(fieldName) & "],ChrW$(10004),"""")"
-                    ElseIf fieldName Like "*_1" Then
-                        newCtl.ControlSource = "=iif([" & RemoveLastTwoChars(fieldName) & "],ChrW$(10004),"""")"
+                    If FieldName Like "*_0" Then
+                        newCtl.ControlSource = "=iif(Not [" & RemoveLastTwoChars(FieldName) & "],ChrW$(10004),"""")"
+                    ElseIf FieldName Like "*_1" Then
+                        newCtl.ControlSource = "=iif([" & RemoveLastTwoChars(FieldName) & "],ChrW$(10004),"""")"
                     Else
-                        newCtl.ControlSource = "=iif([" & fieldName & "],ChrW$(10004),"""")"
+                        newCtl.ControlSource = "=iif([" & FieldName & "],ChrW$(10004),"""")"
                     End If
                     newCtl.BackStyle = 0
                     newCtl.fontSize = 9
@@ -1546,9 +1561,9 @@ Private Function SetUpReport(frmName, sqlStr, Optional paperSize = "Letter")
                     
                     ctl.Visible = True
                     
-                    Dim newCtl As Control, newCtlName, fieldName
+                    Dim newCtl As Control, newCtlName, FieldName
                     newCtlName = ctlName & "1"
-                    fieldName = replace(ctlName, "cmd", "")
+                    FieldName = replace(ctlName, "cmd", "")
                     If Not ControlExists(newCtlName, rpt) Then
                         Set newCtl = CreateReportControl(rptName, acTextBox, , , , newLeft, newtop - 50, newwidth, ctl.height)
                         newCtl.Name = newCtlName
@@ -1557,12 +1572,12 @@ Private Function SetUpReport(frmName, sqlStr, Optional paperSize = "Letter")
                     End If
                     
                     ''IIf(fieldValue And Not IsNull(fieldValue), ChrW$(10004), " ")
-                    If fieldName Like "*_0" Then
-                        newCtl.ControlSource = "=iif(Not [" & RemoveLastTwoChars(fieldName) & "],ChrW$(10004),"""")"
-                    ElseIf fieldName Like "*_1" Then
-                        newCtl.ControlSource = "=iif([" & RemoveLastTwoChars(fieldName) & "],ChrW$(10004),"""")"
+                    If FieldName Like "*_0" Then
+                        newCtl.ControlSource = "=iif(Not [" & RemoveLastTwoChars(FieldName) & "],ChrW$(10004),"""")"
+                    ElseIf FieldName Like "*_1" Then
+                        newCtl.ControlSource = "=iif([" & RemoveLastTwoChars(FieldName) & "],ChrW$(10004),"""")"
                     Else
-                        newCtl.ControlSource = "=iif([" & fieldName & "],ChrW$(10004),"""")"
+                        newCtl.ControlSource = "=iif([" & FieldName & "],ChrW$(10004),"""")"
                     End If
                     newCtl.BackStyle = 0
                     newCtl.fontSize = 9
@@ -1632,20 +1647,20 @@ Public Sub CreateFormCheckboxes(frm As Form, FieldNames As String)
     ''Set the tag
     ''Set the onClick
     ''Set the size (height and width)
-    Dim fieldName, fieldNamesArr As New clsArray: fieldNamesArr.arr = FieldNames
+    Dim FieldName, fieldNamesArr As New clsArray: fieldNamesArr.arr = FieldNames
     Dim optionValue
     
-    For Each fieldName In fieldNamesArr.arr
-        CreateCheckboxControl frm, fieldName
-        CreateCheckboxControl frm, fieldName
+    For Each FieldName In fieldNamesArr.arr
+        CreateCheckboxControl frm, FieldName
+        CreateCheckboxControl frm, FieldName
         
-    Next fieldName
+    Next FieldName
     
 End Sub
 
-Private Sub CreateCheckboxControl(frm As Form, fieldName)
+Private Sub CreateCheckboxControl(frm As Form, FieldName)
     
-    Dim ctlName: ctlName = "cmd" & fieldName
+    Dim ctlName: ctlName = "cmd" & FieldName
     
     Dim ctl As Control
     If DoesPropertyExists(frm, ctlName) Then
@@ -1657,7 +1672,7 @@ Private Sub CreateCheckboxControl(frm As Form, fieldName)
     ctl.BackStyle = 0
     ctl.BorderStyle = 0
     ctl.Name = ctlName
-    ctl.OnClick = "=Toggle_frmContractsPageButtons([Form]," & Esc(fieldName) & ")"
+    ctl.OnClick = "=Toggle_frmContractsPageButtons([Form]," & Esc(FieldName) & ")"
     
 End Sub
 
@@ -1668,20 +1683,20 @@ Public Sub CreateFormOptionGroups(frm As Form, FieldNames As String)
     ''Set the tag
     ''Set the onClick
     ''Set the size (height and width)
-    Dim fieldName, fieldNamesArr As New clsArray: fieldNamesArr.arr = FieldNames
+    Dim FieldName, fieldNamesArr As New clsArray: fieldNamesArr.arr = FieldNames
     Dim optionValue
     
-    For Each fieldName In fieldNamesArr.arr
-        CreateOptionControl frm, "0", fieldName
-        CreateOptionControl frm, "1", fieldName
+    For Each FieldName In fieldNamesArr.arr
+        CreateOptionControl frm, "0", FieldName
+        CreateOptionControl frm, "1", FieldName
         
-    Next fieldName
+    Next FieldName
     
 End Sub
 
-Private Sub CreateOptionControl(frm As Form, optionValue, fieldName)
+Private Sub CreateOptionControl(frm As Form, optionValue, FieldName)
     
-    Dim ctlName: ctlName = "cmd" & fieldName & "_" & optionValue
+    Dim ctlName: ctlName = "cmd" & FieldName & "_" & optionValue
     
     Dim ctl As Control
     If DoesPropertyExists(frm, ctlName) Then
@@ -1694,28 +1709,28 @@ Private Sub CreateOptionControl(frm As Form, optionValue, fieldName)
     ctl.BorderStyle = 0
     ctl.Name = ctlName
     ctl.Tag = optionValue
-    ctl.OnClick = "=Toggle_frmContractsOptionGroup([Form]," & Esc(fieldName) & "," & Esc(ctlName) & ")"
+    ctl.OnClick = "=Toggle_frmContractsOptionGroup([Form]," & Esc(FieldName) & "," & Esc(ctlName) & ")"
     
 End Sub
 
-Public Function Toggle_frmContractsPageButtons(frm As Form, fieldName)
+Public Function Toggle_frmContractsPageButtons(frm As Form, FieldName)
     
-    Dim fieldValue: fieldValue = Not frm(fieldName)
+    Dim fieldValue: fieldValue = Not frm(FieldName)
     If IsNull(fieldValue) Then
         fieldValue = True
     End If
 '    If Not IsNull(fieldValue) Then
 '        fieldValue = False
 '    End If
-    SetToggleButtonCaption frm, fieldName, fieldValue
-    frm(fieldName) = fieldValue
+    SetToggleButtonCaption frm, FieldName, fieldValue
+    frm(FieldName) = fieldValue
     
 End Function
 
-Private Function SetToggleButtonCaption(frm As Form, fieldName, fieldValue)
+Private Function SetToggleButtonCaption(frm As Form, FieldName, fieldValue)
     
     ''Ctrl + F: Check Symbol CheckSymbol
-    frm("cmd" & fieldName).Caption = IIf(fieldValue And Not IsNull(fieldValue), ChrW$(10004), " ")
+    frm("cmd" & FieldName).Caption = IIf(fieldValue And Not IsNull(fieldValue), ChrW$(10004), " ")
     ''frm("cmd" & FieldName).Caption = IIf(fieldValue And Not IsNull(fieldValue), " ", ChrW$(10004))
     
 End Function
@@ -1982,8 +1997,8 @@ Public Function Setup_frmForm6Page2()
     For Each ctl In frm.Controls
         If ctl.Name Like "cmd*" Then
             ''=Toggle_frmContractsPageButtons([Form],"Sale")
-            Dim fieldName: fieldName = GetCmdFieldName(ctl.Name)
-            ctl.OnClick = "=Toggle_frmContractsPageButtons([Form]," & Esc(fieldName) & ")"
+            Dim FieldName: FieldName = GetCmdFieldName(ctl.Name)
+            ctl.OnClick = "=Toggle_frmContractsPageButtons([Form]," & Esc(FieldName) & ")"
         End If
     Next ctl
     
@@ -2074,8 +2089,8 @@ Public Function Setup_frmForm6Page3()
     For Each ctl In frm.Controls
         If ctl.Name Like "cmd*" Then
             ''=Toggle_frmContractsPageButtons([Form],"Sale")
-            Dim fieldName: fieldName = GetCmdFieldName(ctl.Name)
-            ctl.OnClick = "=Toggle_frmContractsPageButtons([Form]," & Esc(fieldName) & ")"
+            Dim FieldName: FieldName = GetCmdFieldName(ctl.Name)
+            ctl.OnClick = "=Toggle_frmContractsPageButtons([Form]," & Esc(FieldName) & ")"
         End If
     Next ctl
     
@@ -2102,7 +2117,7 @@ Private Function SetCustomFormDimensionControls(frm As Form)
 End Function
 
 Private Function GetCmdFieldName(ctlName As String) As String
-    Dim fieldName As String
+    Dim FieldName As String
     Dim startIndex As Integer
     
     ' Find the index of "cmd" in the control name
@@ -2110,14 +2125,14 @@ Private Function GetCmdFieldName(ctlName As String) As String
     
     ' If "cmd" is found, extract the substring after it
     If startIndex > 0 Then
-        fieldName = Mid(ctlName, startIndex + 3) ' Adding 3 to skip "cmd"
+        FieldName = Mid(ctlName, startIndex + 3) ' Adding 3 to skip "cmd"
     Else
         ' If "cmd" is not found, return empty string or handle it as required
-        fieldName = ""
+        FieldName = ""
     End If
     
     ' Return the extracted field name
-    GetCmdFieldName = fieldName
+    GetCmdFieldName = FieldName
 End Function
 
 
@@ -2135,8 +2150,8 @@ Public Function frmContractsPage2_OnCurrent(frm As Object)
     Dim ctl As Control
     For Each ctl In frm.Controls
         If ctl.ControlType = acCommandButton Then
-            Dim fieldName: fieldName = replace(ctl.Name, "cmd", "")
-            SetToggleButtonCaption frm, fieldName, frm(fieldName)
+            Dim FieldName: FieldName = replace(ctl.Name, "cmd", "")
+            SetToggleButtonCaption frm, FieldName, frm(FieldName)
         End If
     Next ctl
 '    SetToggleButtonCaption frm, "BuiltOn", frm("BuiltOn")
@@ -2153,14 +2168,14 @@ Public Function frmForm6Page3_OnCurrent(frm As Object)
     Dim ctl As Control
     For Each ctl In frm.Controls
         If ctl.ControlType = acCommandButton Then
-            Dim fieldName: fieldName = replace(ctl.Name, "cmd", "")
+            Dim FieldName: FieldName = replace(ctl.Name, "cmd", "")
             
-            Dim rawName: rawName = fieldName
-            If fieldName Like "*_0" Or fieldName Like "*_1" Then
-                rawName = left(fieldName, Len(fieldName) - 2)
+            Dim rawName: rawName = FieldName
+            If FieldName Like "*_0" Or FieldName Like "*_1" Then
+                rawName = left(FieldName, Len(FieldName) - 2)
             End If
             
-            SetToggleButtonCaption frm, fieldName, frm(rawName)
+            SetToggleButtonCaption frm, FieldName, frm(rawName)
         End If
     Next ctl
 '    SetToggleButtonCaption frm, "BuiltOn", frm("BuiltOn")
@@ -2267,17 +2282,17 @@ Public Function frmForm6Page4_OnCurrent(frm As Object)
     Dim ctl As Control
     For Each ctl In frm.Controls
         If ctl.ControlType = acCommandButton Then
-            Dim fieldName: fieldName = replace(ctl.Name, "cmd", "")
+            Dim FieldName: FieldName = replace(ctl.Name, "cmd", "")
             Dim rawName
-            If fieldName Like "*_0" Or fieldName Like "*_1" Then
-                rawName = left(fieldName, Len(fieldName) - 2)
+            If FieldName Like "*_0" Or FieldName Like "*_1" Then
+                rawName = left(FieldName, Len(FieldName) - 2)
             End If
             
             Dim fieldValue: fieldValue = frm(rawName)
-            If fieldName Like "*_0" And IsNull(fieldValue) Then
+            If FieldName Like "*_0" And IsNull(fieldValue) Then
                 fieldValue = True
             End If
-            SetToggleButtonCaption frm, fieldName, fieldValue
+            SetToggleButtonCaption frm, FieldName, fieldValue
         End If
     Next ctl
 '    SetToggleButtonCaption frm, "BuiltOn", frm("BuiltOn")
@@ -2301,8 +2316,8 @@ Public Function frmForm6Page2_OnCurrent(frm As Object)
     Dim ctl As Control
     For Each ctl In frm.Controls
         If ctl.ControlType = acCommandButton Then
-            Dim fieldName: fieldName = replace(ctl.Name, "cmd", "")
-            SetToggleButtonCaption frm, fieldName, frm(fieldName)
+            Dim FieldName: FieldName = replace(ctl.Name, "cmd", "")
+            SetToggleButtonCaption frm, FieldName, frm(FieldName)
         End If
     Next ctl
 '    SetToggleButtonCaption frm, "BuiltOn", frm("BuiltOn")
@@ -2371,9 +2386,9 @@ Public Function Setup_frmContractsPage3()
     
 End Function
 
-Public Function SetOptionGroupOnCurrent(frm As Form, fieldName)
+Public Function SetOptionGroupOnCurrent(frm As Form, FieldName)
 
-    Dim fieldValue: fieldValue = frm(fieldName)
+    Dim fieldValue: fieldValue = frm(FieldName)
     Dim ctl As Control, rightValue
     
     If fieldValue Then
@@ -2383,7 +2398,7 @@ Public Function SetOptionGroupOnCurrent(frm As Form, fieldName)
     End If
     
     For Each ctl In frm.Controls
-        If ctl.Name Like "cmd" & fieldName & "_*" Then
+        If ctl.Name Like "cmd" & FieldName & "_*" Then
             If ctl.Tag <> rightValue Then
                 ctl.Caption = " "
             Else

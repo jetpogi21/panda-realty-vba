@@ -2,7 +2,7 @@ Attribute VB_Name = "SQL Helper"
 Option Compare Database
 Option Explicit
 
-Public Function EscapeString(Value, Optional tblName = "", Optional fieldName As Variant = "") As String
+Public Function EscapeString(Value, Optional tblName = "", Optional FieldName As Variant = "") As String
 
     If IsNull(Value) Then
         EscapeString = "Null"
@@ -17,7 +17,7 @@ Public Function EscapeString(Value, Optional tblName = "", Optional fieldName As
             Set defType = CurrentDb.QueryDefs
         End If
         
-        fieldType = defType(tblName).fields(fieldName).Type
+        fieldType = defType(tblName).fields(FieldName).Type
         
         Select Case fieldType
             Case 10, 12:

@@ -969,12 +969,12 @@ Public Function UpdateFormData2(frm As Form, Model As String)
     
     Dim ctl As Control, recordID As Variant
     
-    Dim fieldName As String, FieldTypeID As Integer, currentValue, oldValue, PrimaryKey
+    Dim FieldName As String, FieldTypeID As Integer, currentValue, oldValue, PrimaryKey
     Dim updateStatement() As String, i As Integer
     
     Do Until rs.EOF
     
-        fieldName = rs.fields("ModelField")
+        FieldName = rs.fields("ModelField")
         FieldTypeID = rs.fields("FieldTypeID")
         PrimaryKey = concat(Model, "ID")
         
@@ -982,15 +982,15 @@ Public Function UpdateFormData2(frm As Form, Model As String)
             GoTo NextField:
         End If
         
-        If ControlExists(fieldName, frm) And DoesPropertyExists(CurrentDb.TableDefs(tblName), fieldName) Then
+        If ControlExists(FieldName, frm) And DoesPropertyExists(CurrentDb.TableDefs(tblName), FieldName) Then
             ''Get the oldvalue from the table
             recordID = frm(PrimaryKey)
-            currentValue = frm(fieldName)
-            oldValue = GetOldValue(tblName, fieldName, PrimaryKey, recordID)
+            currentValue = frm(FieldName)
+            oldValue = GetOldValue(tblName, FieldName, PrimaryKey, recordID)
             If oldValue <> currentValue Or (Not IsNull(oldValue) Xor Not IsNull(currentValue)) Then
                 ReDim Preserve updateStatement(i)
-                updateStatement(i) = fieldName & " = " & ReturnStringBasedOnType(currentValue, FieldTypeID)
-                Update_Log tblName, oldValue, currentValue, recordID, fieldName
+                updateStatement(i) = FieldName & " = " & ReturnStringBasedOnType(currentValue, FieldTypeID)
+                Update_Log tblName, oldValue, currentValue, recordID, FieldName
                 i = i + 1
             End If
         End If
@@ -1884,10 +1884,10 @@ Public Function CreateDEUploadForm(frm As Form, ModelID)
     
 End Function
 
-Public Function FollowFormHyperlink(frm, fieldName, Optional WithStreetAddress As Boolean = False, Optional AbsoluteLink = Null)
+Public Function FollowFormHyperlink(frm, FieldName, Optional WithStreetAddress As Boolean = False, Optional AbsoluteLink = Null)
     
     Dim fileName, PropertyListID
-    If isFalse(AbsoluteLink) Then fileName = frm(fieldName)
+    If isFalse(AbsoluteLink) Then fileName = frm(FieldName)
     If WithStreetAddress Then PropertyListID = frm("PropertyListID")
     
     If IsNull(fileName) Then
@@ -4133,46 +4133,46 @@ Private Function GenerateWildSearchSQL(rs As Recordset, ctlValue) As String
     
 End Function
 
-Private Function GenerateNumericSearch(fieldName, fromValue, toValue) As String
+Private Function GenerateNumericSearch(FieldName, fromValue, toValue) As String
     
     If IsNull(fromValue) And IsNull(toValue) Then Exit Function
     
     If Not IsNull(fromValue) And Not IsNull(toValue) Then
-        GenerateNumericSearch = fieldName & " Between " & fromValue & " And " & toValue
+        GenerateNumericSearch = FieldName & " Between " & fromValue & " And " & toValue
     ElseIf Not IsNull(toValue) Then
-        GenerateNumericSearch = fieldName & " <= " & toValue
+        GenerateNumericSearch = FieldName & " <= " & toValue
     ElseIf Not IsNull(fromValue) Then
-        GenerateNumericSearch = fieldName & " >= " & fromValue
+        GenerateNumericSearch = FieldName & " >= " & fromValue
     End If
     
 End Function
 
-Private Function GenerateDateSearch(fieldName, fromValue, toValue) As String
+Private Function GenerateDateSearch(FieldName, fromValue, toValue) As String
     
     If IsNull(fromValue) And IsNull(toValue) Then Exit Function
     
     If Not IsNull(fromValue) And Not IsNull(toValue) Then
-        GenerateDateSearch = fieldName & " Between #" & fromValue & "# And #" & toValue & "#"
+        GenerateDateSearch = FieldName & " Between #" & fromValue & "# And #" & toValue & "#"
     ElseIf Not IsNull(toValue) Then
-        GenerateDateSearch = fieldName & " <= #" & toValue & "#"
+        GenerateDateSearch = FieldName & " <= #" & toValue & "#"
     ElseIf Not IsNull(fromValue) Then
-        GenerateDateSearch = fieldName & " >= #" & fromValue & "#"
+        GenerateDateSearch = FieldName & " >= #" & fromValue & "#"
     End If
     
 End Function
 
 
-Private Function GenerateMonthYearSearch(fieldName, monthValue, yearValue) As String
+Private Function GenerateMonthYearSearch(FieldName, monthValue, yearValue) As String
     
     Dim fltrArr As New clsArray
     If IsNull(monthValue) And IsNull(yearValue) Then Exit Function
     
     If Not IsNull(monthValue) Then
-        fltrArr.Add "Month(" & fieldName & ") = " & monthValue
+        fltrArr.Add "Month(" & FieldName & ") = " & monthValue
     End If
     
     If Not IsNull(yearValue) Then
-        fltrArr.Add "Year(" & fieldName & ") = " & yearValue
+        fltrArr.Add "Year(" & FieldName & ") = " & yearValue
     End If
     
     If fltrArr.Count > 0 Then
@@ -4234,7 +4234,7 @@ Public Function FilterSubform(frm, ModelID)
     ''Open the wildcards filterFields
     Set rs = ReturnRecordset("SELECT * FROM tblFilterFields WHERE ModelID = " & ModelID & " ANd IsWildSearch = -1")
     
-    Dim ctlName, fltrArr As New clsArray, fieldName
+    Dim ctlName, fltrArr As New clsArray, FieldName
     
     If Not rs.EOF Then
         ctlName = "fltrWildSearch"
@@ -4253,15 +4253,15 @@ Public Function FilterSubform(frm, ModelID)
         ''Boolean Filter
         If modelFieldRs.fields("FieldTypeID") = dbBoolean Then
             
-            fieldName = modelFieldRs.fields("ModelField")
-            ctlName = "ogFltr" & fieldName
+            FieldName = modelFieldRs.fields("ModelField")
+            ctlName = "ogFltr" & FieldName
             
             If Not IsNull(frm(ctlName)) Then
                 Select Case frm(ctlName)
                     Case 2:
                         
                     Case Else:
-                        fltrArr.Add fieldName & " = " & frm(ctlName)
+                        fltrArr.Add FieldName & " = " & frm(ctlName)
                         
                 End Select
             End If
@@ -4270,10 +4270,10 @@ Public Function FilterSubform(frm, ModelID)
         
         If Not IsNull(rs.fields("FilterOperator")) Then
             
-            fieldName = modelFieldRs.fields("ModelField")
-            ctlName = "fltr" & fieldName
+            FieldName = modelFieldRs.fields("ModelField")
+            ctlName = "fltr" & FieldName
                
-            If Not IsNull(frm(ctlName)) Then fltrArr.Add fieldName & " Like " & EscapeString("*" & frm(ctlName) & "*")
+            If Not IsNull(frm(ctlName)) Then fltrArr.Add FieldName & " Like " & EscapeString("*" & frm(ctlName) & "*")
             
             GoTo NextFilter:
             
@@ -4281,13 +4281,13 @@ Public Function FilterSubform(frm, ModelID)
 
         If rs.fields("IsList") Then
             
-            fieldName = modelFieldRs.fields("ModelField")
-            ctlName = "fltr" & fieldName
+            FieldName = modelFieldRs.fields("ModelField")
+            ctlName = "fltr" & FieldName
             
             If IsNull(modelFieldRs.fields("PossibleValues")) Then
-                If Not IsNull(frm(ctlName)) Then fltrArr.Add fieldName & " = " & frm(ctlName)
+                If Not IsNull(frm(ctlName)) Then fltrArr.Add FieldName & " = " & frm(ctlName)
             Else
-                If Not IsNull(frm(ctlName)) Then fltrArr.Add fieldName & " = " & EscapeString(frm(ctlName))
+                If Not IsNull(frm(ctlName)) Then fltrArr.Add FieldName & " = " & EscapeString(frm(ctlName))
             End If
             
             GoTo NextFilter:
@@ -4297,10 +4297,10 @@ Public Function FilterSubform(frm, ModelID)
         Dim resultingSQL
         If modelFieldRs.fields("FieldTypeID") = dbDouble Then
             
-            fieldName = modelFieldRs.fields("ModelField")
-            ctlName = "fltr" & fieldName
+            FieldName = modelFieldRs.fields("ModelField")
+            ctlName = "fltr" & FieldName
             
-            resultingSQL = GenerateNumericSearch(fieldName, frm(ctlName & "From"), frm(ctlName & "To"))
+            resultingSQL = GenerateNumericSearch(FieldName, frm(ctlName & "From"), frm(ctlName & "To"))
 
             If resultingSQL <> "" Then
                 fltrArr.Add resultingSQL
@@ -4310,10 +4310,10 @@ Public Function FilterSubform(frm, ModelID)
 
         If rs.fields("IsMonthYear") Then
         
-            fieldName = modelFieldRs.fields("ModelField")
-            ctlName = "fltr" & fieldName
+            FieldName = modelFieldRs.fields("ModelField")
+            ctlName = "fltr" & FieldName
             
-            resultingSQL = GenerateMonthYearSearch(fieldName, frm(ctlName & "Month"), frm(ctlName & "Year"))
+            resultingSQL = GenerateMonthYearSearch(FieldName, frm(ctlName & "Month"), frm(ctlName & "Year"))
             
             If resultingSQL <> "" Then
                 fltrArr.Add resultingSQL
@@ -4323,10 +4323,10 @@ Public Function FilterSubform(frm, ModelID)
 
         If rs.fields("IsBetween") Then
         
-            fieldName = modelFieldRs.fields("ModelField")
-            ctlName = "fltr" & fieldName
+            FieldName = modelFieldRs.fields("ModelField")
+            ctlName = "fltr" & FieldName
             
-            resultingSQL = GenerateDateSearch(fieldName, frm(ctlName & "From"), frm(ctlName & "To"))
+            resultingSQL = GenerateDateSearch(FieldName, frm(ctlName & "From"), frm(ctlName & "To"))
 
             If resultingSQL <> "" Then
                 fltrArr.Add resultingSQL

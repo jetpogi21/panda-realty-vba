@@ -54,14 +54,14 @@ Public Function GenericShowAllPropertyListFields(frm As Form, MainFormName, subf
     rs.MoveFirst
     Do Until rs.EOF
     
-        Dim isShown, fieldName
+        Dim isShown, FieldName
         isShown = rs.fields("isShown")
-        fieldName = rs.fields("FieldName")
+        FieldName = rs.fields("FieldName")
         
         rs.Edit
         rs.fields("isShown") = True
         
-        frm2(subformName).Form.Controls(fieldName).ColumnHidden = False
+        frm2(subformName).Form.Controls(FieldName).ColumnHidden = False
         
         rs.Update
         
@@ -76,8 +76,8 @@ Public Function GenericIsShownAfterUpdate(frm As Form)
     
     
     Dim frm2 As Form
-    Dim fieldName, isShown As Boolean, MainFormName, subformName
-    fieldName = frm("FieldName")
+    Dim FieldName, isShown As Boolean, MainFormName, subformName
+    FieldName = frm("FieldName")
     isShown = frm("IsShown")
     MainFormName = frm("MainFormName")
     subformName = frm("SubformName")
@@ -101,11 +101,11 @@ Public Function GenericHideOrShowColumn(frm As Form, MainFormName, subformName)
     
     Do Until rs.EOF
     
-        Dim isShown, fieldName
-        fieldName = rs.fields("FieldName")
+        Dim isShown, FieldName
+        FieldName = rs.fields("FieldName")
         isShown = rs.fields("isShown")
         
-        frm(subformName).Form.Controls(fieldName).ColumnHidden = Not isShown
+        frm(subformName).Form.Controls(FieldName).ColumnHidden = Not isShown
         rs.MoveNext
         
     Loop

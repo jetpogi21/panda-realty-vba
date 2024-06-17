@@ -210,7 +210,7 @@ Private Function GenerateImportDataFields(ImportDataID, sourceTableName, sourceF
     Dim rs As Recordset
     Set rs = ReturnRecordset("SELECT * FROM qryImportDataFields WHERE ImportDataID = " & ImportDataID & " AND ExternalDBFieldID IS NOT NULL")
     
-    Dim ImportDataFieldID, ModelFieldID, LookupTable, LookupField, ReturnField, ExternalDBFieldID, ModelField, fieldName, DestinationConnector, SourceConnector
+    Dim ImportDataFieldID, ModelFieldID, LookupTable, LookupField, ReturnField, ExternalDBFieldID, ModelField, FieldName, DestinationConnector, SourceConnector
     Dim sourceFieldArr As New clsArray, destFieldArr As New clsArray
     
     If rs.EOF Then Exit Function
@@ -222,14 +222,14 @@ Private Function GenerateImportDataFields(ImportDataID, sourceTableName, sourceF
         ReturnField = rs.fields("ReturnField")
         ExternalDBFieldID = rs.fields("ExternalDBFieldID")
         ModelField = rs.fields("ModelField")
-        fieldName = rs.fields("FieldName")
+        FieldName = rs.fields("FieldName")
         DestinationConnector = rs.fields("DestinationConnector")
         SourceConnector = rs.fields("SourceConnector")
         
         If IsNull(LookupTable) Then
-            sourceFieldArr.Add "[" & sourceTableName & "]." & fieldName & " AS " & ModelField
+            sourceFieldArr.Add "[" & sourceTableName & "]." & FieldName & " AS " & ModelField
         Else
-            joinObjs.Add GenerateJoinObj(LookupTable, fieldName, , LookupField, "LEFT")
+            joinObjs.Add GenerateJoinObj(LookupTable, FieldName, , LookupField, "LEFT")
             sourceFieldArr.Add "CLng(" & LookupTable & "." & ReturnField & ") AS " & ModelField
         End If
         

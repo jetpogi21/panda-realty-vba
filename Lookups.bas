@@ -78,7 +78,7 @@ Public Function ReturnRecordset(sqlStr) As Recordset
     
 End Function
 
-Public Function ESum(sqlStr As String, fieldName As String) As Double
+Public Function ESum(sqlStr As String, FieldName As String) As Double
     
     Dim rs As Recordset
     Set rs = CurrentDb.OpenRecordset(sqlStr)
@@ -88,19 +88,19 @@ Public Function ESum(sqlStr As String, fieldName As String) As Double
         Exit Function
     End If
     
-    If isFalse(rs.fields(fieldName)) Then
+    If isFalse(rs.fields(FieldName)) Then
         ESum = 0
         Exit Function
     Else
-        ESum = rs.fields(fieldName)
+        ESum = rs.fields(FieldName)
     End If
     
 End Function
 
-Public Function ESum2(tblName As String, filterStr As String, fieldName As String) As Double
+Public Function ESum2(tblName As String, filterStr As String, FieldName As String) As Double
     
     Dim rs As Recordset
-    Set rs = CurrentDb.OpenRecordset("SELECT SUM(" & fieldName & ") As SumOfRecord FROM " & tblName & " WHERE " & filterStr)
+    Set rs = CurrentDb.OpenRecordset("SELECT SUM(" & FieldName & ") As SumOfRecord FROM " & tblName & " WHERE " & filterStr)
     
     If rs.EOF Then
         ESum2 = 0

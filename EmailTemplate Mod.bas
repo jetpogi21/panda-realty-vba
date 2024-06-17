@@ -66,8 +66,8 @@ Private Function ValidateFieldCaption(frm As Form, CompatibleWith) As Boolean
     
 End Function
 
-Public Function SetFieldFocusEmailTemplate(frm As Form, fieldName)
+Public Function SetFieldFocusEmailTemplate(frm As Form, FieldName)
 
-    frm("txtActiveField") = fieldName
+    frm("txtActiveField") = FieldName
     
 End Function

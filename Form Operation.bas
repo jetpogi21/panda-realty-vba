@@ -18,12 +18,12 @@ Public Function SaveFormData(frm As Form, tblName As String, PrimaryKey As Strin
     
 End Function
 
-Public Function GetOldValue(tblName, fieldName, PrimaryKey, recordID As Variant) As Variant
+Public Function GetOldValue(tblName, FieldName, PrimaryKey, recordID As Variant) As Variant
     
     Dim rs As Recordset
     Set rs = ReturnRecordset("SELECT * FROM " & tblName & " WHERE " & PrimaryKey & " = " & recordID)
     
-    GetOldValue = rs(fieldName)
+    GetOldValue = rs(FieldName)
     
 End Function
 
@@ -34,21 +34,21 @@ Private Function UpdateFormData(frm As Form, tblName As String, PrimaryKey As St
     
     Dim ctl As Control, recordID As Variant
     
-    Dim fieldName As String, FieldTypeID As Integer, currentValue, oldValue
+    Dim FieldName As String, FieldTypeID As Integer, currentValue, oldValue
     Dim updateStatement() As String, i As Integer
     
     Do Until rs.EOF
-        fieldName = rs.fields("FieldName")
+        FieldName = rs.fields("FieldName")
         FieldTypeID = rs.fields("FieldTypeID")
-        If ControlExists(fieldName, frm) Then
+        If ControlExists(FieldName, frm) Then
             ''Get the oldvalue from the table
             recordID = frm(PrimaryKey)
-            currentValue = frm(fieldName)
-            oldValue = GetOldValue(tblName, fieldName, PrimaryKey, recordID)
+            currentValue = frm(FieldName)
+            oldValue = GetOldValue(tblName, FieldName, PrimaryKey, recordID)
             If oldValue <> currentValue Or (Not IsNull(oldValue) Xor Not IsNull(currentValue)) Then
                 ReDim Preserve updateStatement(i)
-                updateStatement(i) = fieldName & " = " & ReturnStringBasedOnType(currentValue, FieldTypeID)
-                Update_Log tblName, oldValue, currentValue, recordID, fieldName
+                updateStatement(i) = FieldName & " = " & ReturnStringBasedOnType(currentValue, FieldTypeID)
+                Update_Log tblName, oldValue, currentValue, recordID, FieldName
                 i = i + 1
             End If
         End If
@@ -64,18 +64,18 @@ Private Function InsertFormData(frm As Form, tblName As String)
     
     Dim ctl As Control
     
-    Dim fieldName As String, FieldTypeID As Integer
+    Dim FieldName As String, FieldTypeID As Integer
     Dim fields() As String, fieldValues() As String, i As Integer
     
     Do Until rs.EOF
-        fieldName = rs.fields("FieldName")
+        FieldName = rs.fields("FieldName")
         FieldTypeID = rs.fields("FieldTypeID")
-        If ControlExists(fieldName, frm) Then
+        If ControlExists(FieldName, frm) Then
             ReDim Preserve fields(i)
             ReDim Preserve fieldValues(i)
             
-            fields(i) = fieldName
-            fieldValues(i) = ReturnStringBasedOnType(frm(fieldName), FieldTypeID)
+            fields(i) = FieldName
+            fieldValues(i) = ReturnStringBasedOnType(frm(FieldName), FieldTypeID)
             
             i = i + 1
             
@@ -255,14 +255,14 @@ Public Function DefaultMainFormLoad(frm As Form)
 End Function
 
 
-Public Function OpenFormFromRecord(frm As Form, fieldName, frmName)
+Public Function OpenFormFromRecord(frm As Form, FieldName, frmName)
     
     Dim fieldValue
-    fieldValue = frm(fieldName)
+    fieldValue = frm(FieldName)
     
     If IsNull(fieldValue) Then Exit Function
     
-    DoCmd.OpenForm frmName, , , fieldName & "=" & fieldValue
+    DoCmd.OpenForm frmName, , , FieldName & "=" & fieldValue
    
 End Function
 

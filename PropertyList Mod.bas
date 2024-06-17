@@ -729,26 +729,26 @@ Private Function GetSaleDateFilter(frm As Form, filterArr As clsArray, fileNameA
 
 End Function
 
-Private Function GetNumberRangeFilter(frm As Form, filterArr As clsArray, fileNameArr As clsArray, fieldName)
+Private Function GetNumberRangeFilter(frm As Form, filterArr As clsArray, fileNameArr As clsArray, FieldName)
 
     Dim flrtGt, fltrLt
-    flrtGt = frm("fltr" & fieldName & "Gt")
-    fltrLt = frm("fltr" & fieldName & "Lt")
+    flrtGt = frm("fltr" & FieldName & "Gt")
+    fltrLt = frm("fltr" & FieldName & "Lt")
     
     Dim tagArr As New clsArray
     
     If Not IsNull(flrtGt) Then
         tagArr.Add "GT" & flrtGt
-        filterArr.Add fieldName & " >= " & flrtGt
+        filterArr.Add FieldName & " >= " & flrtGt
     End If
     
     If Not IsNull(fltrLt) Then
         tagArr.Add "LT" & fltrLt
-        filterArr.Add fieldName & " <= " & fltrLt
+        filterArr.Add FieldName & " <= " & fltrLt
     End If
     
     If Not IsNull(flrtGt) And Not IsNull(fltrLt) Then
-        fileNameArr.Add fieldName & tagArr.JoinArr("-")
+        fileNameArr.Add FieldName & tagArr.JoinArr("-")
     End If
     
 End Function
@@ -1151,14 +1151,14 @@ End Function
 
 Public Function OpenEntityFileForm(frm As Form, EntityCategory, Optional fromBuyerForm = False)
 
-    Dim fieldValue, fieldName, objectName, PropertyListID
+    Dim fieldValue, FieldName, objectName, PropertyListID
     PropertyListID = frm("PropertyListID")
     objectName = EntityCategory
-    fieldName = "EntityID"
+    FieldName = "EntityID"
     If fromBuyerForm Then
-        fieldValue = frm(fieldName)
+        fieldValue = frm(FieldName)
     Else
-        fieldValue = frm("sub" & objectName & "s")(fieldName)
+        fieldValue = frm("sub" & objectName & "s")(FieldName)
     End If
     
     If ExitIfTrue(IsNull(PropertyListID), "Property is empty...") Then Exit Function
@@ -1169,9 +1169,9 @@ Public Function OpenEntityFileForm(frm As Form, EntityCategory, Optional fromBuy
     Set frm2 = Forms("frmSimple" & objectName & "Files")
     
     frm2("PropertyListID") = PropertyListID
-    frm2(fieldName) = fieldValue
-    frm2(fieldName).AllowValueListEdits = False
-    frm2(fieldName).Locked = True
+    frm2(FieldName) = fieldValue
+    frm2(FieldName).AllowValueListEdits = False
+    frm2(FieldName).Locked = True
     
     If fromBuyerForm Then
         frm2.OnUnload = "=RefreshBuyerForm()"
@@ -1202,10 +1202,10 @@ End Function
 
 Public Function OpenBuyerFileForm(frm As Form)
 
-    Dim fieldValue, fieldName, objectName
+    Dim fieldValue, FieldName, objectName
     objectName = "Buyer"
-    fieldName = "EntityID"
-    fieldValue = frm.subBuyers(fieldName)
+    FieldName = "EntityID"
+    fieldValue = frm.subBuyers(FieldName)
     
     If ExitIfTrue(IsNull(fieldValue), "Please select a valid " & objectName) Then Exit Function
     
@@ -1213,9 +1213,9 @@ Public Function OpenBuyerFileForm(frm As Form)
     DoCmd.OpenForm "frmSimple" & objectName & "Files"
     Set frm2 = Forms("frmSimple" & objectName & "Files")
     
-    frm2(fieldName) = fieldValue
-    frm2(fieldName).AllowValueListEdits = False
-    frm2(fieldName).Locked = True
+    frm2(FieldName) = fieldValue
+    frm2(FieldName).AllowValueListEdits = False
+    frm2(FieldName).Locked = True
     
     frm2.OnUnload = "=PropertyListRefreshSubforms()"
     

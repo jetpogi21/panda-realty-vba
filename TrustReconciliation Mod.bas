@@ -91,15 +91,15 @@ Public Function SetTotalAmounts(frm As Form, Optional mode = "Receipt")
     monthID = frm("MonthID")
     TrustReconciliationYear = frm("TrustReconciliationYear")
     
-    Dim tblName As String, fieldName, dateField
+    Dim tblName As String, FieldName, dateField
     If mode = "Receipt" Then
         tblName = "tblTrustReceipts"
         dateField = "DateReceived"
-        fieldName = "txtReceipts"
+        FieldName = "txtReceipts"
     Else
         tblName = "tblTrustPayments"
         dateField = "DatePaid"
-        fieldName = "txtPayments"
+        FieldName = "txtPayments"
     End If
     Dim sum
     If isFalse(monthID) Or isFalse(TrustReconciliationYear) Then
@@ -108,7 +108,7 @@ Public Function SetTotalAmounts(frm As Form, Optional mode = "Receipt")
         sum = ESum2(tblName, "Month(" & dateField & ") = " & monthID & " AND Year(" & dateField & ") = " & TrustReconciliationYear, "Amount")
     End If
     
-    frm(fieldName).ControlSource = "=" & sum
+    frm(FieldName).ControlSource = "=" & sum
     
 End Function
 
