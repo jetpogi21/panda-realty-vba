@@ -1,0 +1,13 @@
+﻿Option Compare Database
+Option Explicit
+
+Private Sub EntityID_NotInList(NewData As String, Response As Integer)
+    
+    Dim EntityCategoryID, EntityCategory
+    EntityCategory = "Seller"
+    EntityCategoryID = ELookup("tblEntityCategories", "EntityCategoryName = '" & EntityCategory & "'", "EntityCategoryID")
+    
+    RunSQL "INSERT INTO tblEntities (EntityName, EntityCategoryID, IsSeller) VALUES (" & EscapeString(NewData) & "," & EntityCategoryID & ",-1)"
+    Response = acDataErrAdded
+    
+End Sub

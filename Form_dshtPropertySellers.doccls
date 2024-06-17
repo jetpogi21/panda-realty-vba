@@ -1,0 +1,31 @@
+﻿Option Compare Database
+Option Explicit
+Private vPropertyEntityID
+
+Private Sub EntityID_NotInList(NewData As String, Response As Integer)
+    
+    Dim EntityCategoryID, EntityCategory
+    EntityCategory = "Seller"
+    EntityCategoryID = ELookup("tblEntityCategories", "EntityCategoryName = '" & EntityCategory & "'", "EntityCategoryID")
+    
+    RunSQL "INSERT INTO tblEntities (EntityName, EntityCategoryID, IsSeller) VALUES (" & EscapeString(NewData) & "," & EntityCategoryID & ",-1)"
+    Response = acDataErrAdded
+    
+    If IsFormOpen("frmPropertyList") Then
+        Forms("frmPropertyList")("subPropertySeller2").Form("EntityID").Requery
+    End If
+    
+End Sub
+
+Private Sub Form_AfterDelConfirm(Status As Integer)
+    
+    RunSQL "DELETE FROM tblPropertyEntities Where PropertyEntityID = " & vPropertyEntityID
+    
+End Sub
+
+
+Private Sub Form_Delete(Cancel As Integer)
+    
+    vPropertyEntityID = Me.PropertyEntityID
+    
+End Sub

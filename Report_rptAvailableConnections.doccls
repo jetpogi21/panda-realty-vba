@@ -1,0 +1,29 @@
+﻿Option Compare Database
+Option Explicit
+
+Private Sub Detail_Format(Cancel As Integer, FormatCount As Integer)
+
+    Me.txtWorkstation = Environ("ComputerName")
+    Me.txtUser = Environ("UserName")
+    Me.txtAppName = CurrentProject.Path & "\" & CurrentProject.Name
+    
+    Me.txtSummary = Me.openArgs
+
+End Sub
+
+Private Sub Report_NoData(Cancel As Integer)
+
+On Error GoTo Err_Handler
+
+    MsgBox "There is no data to print", vbInformation, "No data"
+    Cancel = True
+    
+Exit_Handler:
+    Exit Sub
+
+Err_Handler:
+    MsgBox "Error " & Err.number & " in Report_Open procedure :             " & vbCrLf & _
+        Err.Description, vbCritical, "Program error"
+    Resume Exit_Handler
+    
+End Sub

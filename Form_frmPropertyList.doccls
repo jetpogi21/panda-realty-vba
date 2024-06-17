@@ -1,0 +1,9 @@
+﻿Option Compare Database
+Option Explicit
+
+Private Sub Form_Open(Cancel As Integer)
+    If IsFormOpen("frmTaskCalendar") Then
+        MsgBox "Please close the Calendar Form first.", vbCritical, "MS Access Resource exceeded."
+        Cancel = True
+    End If
+End Sub

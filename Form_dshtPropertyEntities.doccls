@@ -1,0 +1,16 @@
+﻿Option Compare Database
+Option Explicit
+
+Private Sub Form_AfterInsert()
+    Dim PropertyListID: PropertyListID = Me.PropertyListID
+    If Not isFalse(PropertyListID) Then SyncBuyerRequirements [Form], PropertyListID
+    
+    frmBuyers_OnCurrent Me.Parent.Form
+End Sub
+
+Private Sub Form_AfterUpdate()
+    Dim PropertyListID: PropertyListID = Me.PropertyListID
+    If Not isFalse(PropertyListID) Then SyncBuyerRequirements [Form], PropertyListID
+    
+    frmBuyers_OnCurrent Me.Parent.Form
+End Sub

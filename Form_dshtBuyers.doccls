@@ -1,0 +1,13 @@
+﻿Option Compare Database
+Option Explicit
+
+Private Sub BuyerStatusID_NotInList(NewData As String, Response As Integer)
+    
+    Dim tblName, fldName
+    tblName = "tblBuyerStatus"
+    fldName = "BuyerStatus"
+    
+    RunSQL "INSERT INTO " & tblName & " (" & fldName & ") VALUES (" & EscapeString(NewData) & ")"
+    Response = acDataErrAdded
+    
+End Sub

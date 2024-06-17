@@ -1,0 +1,11 @@
+﻿Option Compare Database
+Option Explicit
+
+Private Sub PropertyStatusID_NotInList(NewData As String, Response As Integer)
+    Dim tblName, fldName
+    tblName = "tblPropertyStatus"
+    fldName = "PropertyStatusCode"
+    
+    RunSQL "INSERT INTO " & tblName & " (" & fldName & ") VALUES (" & EscapeString(NewData) & ")"
+    Response = acDataErrAdded
+End Sub

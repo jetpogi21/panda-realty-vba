@@ -1,0 +1,27 @@
+﻿Option Compare Database
+Option Explicit
+Private vPropertyEntityID
+
+Private Sub EntityID_NotInList(NewData As String, Response As Integer)
+    
+    Dim EntityCategoryID, EntityCategory
+    EntityCategory = "Tenant"
+    EntityCategoryID = ELookup("tblEntityCategories", "EntityCategoryName = '" & EntityCategory & "'", "EntityCategoryID")
+    
+    RunSQL "INSERT INTO tblEntities (EntityName, EntityCategoryID, IsSeller) VALUES (" & EscapeString(NewData) & "," & EntityCategoryID & ",0)"
+    Response = acDataErrAdded
+    
+End Sub
+
+Private Sub Form_AfterDelConfirm(Status As Integer)
+    
+    RunSQL "DELETE FROM tblPropertyEntities Where PropertyEntityID = " & vPropertyEntityID
+    
+End Sub
+
+
+Private Sub Form_Delete(Cancel As Integer)
+    
+    vPropertyEntityID = Me.PropertyEntityID
+    
+End Sub

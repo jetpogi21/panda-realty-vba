@@ -1,0 +1,6 @@
+﻿Option Compare Database
+Option Explicit
+
+Private Sub Form_Load()
+    Me.webView.Object.Navigate "file:///C:/Users/User/Downloads/workspace/templates/index.html"
+End Sub

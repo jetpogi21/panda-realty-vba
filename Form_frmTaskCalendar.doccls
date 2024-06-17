@@ -1,0 +1,8 @@
+﻿
+
+Private Sub Form_Open(Cancel As Integer)
+    If IsFormOpen("frmPropertyList") Then
+        MsgBox "Please close the Property Form first.", vbCritical, "MS Access Resource exceeded."
+        Cancel = True
+    End If
+End Sub
