@@ -141,6 +141,8 @@ Public Function CreateSaleContract(frm As Form)
         rs.MoveNext
     Loop
     
+    
+    
     ''Update the BuyerID and Buyer2ID dependning on the member
     If Not isFalse(SuccessfulBuyerID) Then
         Set rs = ReturnRecordset("SELECT TOP 2 * FROM qryPropertyEntityMembers WHERE MemberName <> " & Esc(SuccessfulBuyerName) & _
@@ -168,15 +170,24 @@ Public Function CreateSaleContract(frm As Form)
     ''Update the PropertyMangerID
     Set rs = ReturnRecordset("SELECT TOP 1 * FROM qryPropertyEntities WHERE PropertyListID = " & PropertyListID & _
         " AND EntityCategoryName = ""Contact"" AND ContactCategoryName = ""Management"" AND Association = ""Seller""")
+    Dim EntityID, EntityName, EntityMemberID
     Do Until rs.EOF
-        Dim EntityID: EntityID = rs.fields("EntityID")
-        Dim EntityName: EntityName = rs.fields("EntityName")
+        EntityID = rs.fields("EntityID")
+        EntityName = rs.fields("EntityName")
         
-        Dim EntityMemberID: EntityMemberID = ELookup("qryPropertyEntityMembers", "EntityID = " & EntityID, "EntityMemberID", "[Timestamp] DESC")
+        EntityMemberID = ELookup("qryPropertyEntityMembers", "EntityID = " & EntityID, "EntityMemberID", "[Timestamp] DESC")
         RunSQL "UPDATE tblContracts SET PropertyMangerID = " & EntityMemberID & _
             ",AgencyName = " & Esc(EntityName) & " WHERE ContractID = " & ContractID
         rs.MoveNext
     Loop
+    
+    ''Update the BuyerAgentID
+    Dim BuyerAgentID: BuyerAgentID = ELookup("qryPropertyEntities", "PropertyListID = " & PropertyListID & _
+        " AND EntityCategoryName = ""Contact"" AND ContactCategoryName = ""Buyers Agent""", "EntityID")
+    
+    If Not isFalse(BuyerAgentID) Then
+        RunSQL "UPDATE tblContracts SET BuyerAgentID = " & BuyerAgentID & " WHERE ContractID = " & ContractID
+    End If
     
     DoCmd.OpenForm "frmContracts", , , "ContractID = " & ContractID
        
