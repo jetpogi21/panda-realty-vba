@@ -5,6 +5,40 @@ Option Explicit
 Public ProgressPopup_StartTime As Long
 Public ProgressPopup_LastProgress As Double
 
+Public Sub D(str)
+
+    Dim strArr As New clsArray: strArr.arr = str
+    
+    Dim lines As New clsArray
+    
+    Dim item, i As Integer: i = 0
+    For Each item In strArr.arr
+        lines.Add IIf(i > 0, vbTab, "") & replace("Dim [item]: [item] = rs.Fields(""[item]"")", "[item]", item)
+        i = i + 1
+    Next item
+    
+    CopyToClipboard lines.JoinArr(vbNewLine)
+    
+End Sub
+
+Public Sub rs()
+    Dim str: str = "Dim rs As Recordset: Set rs = ReturnRecordset(sqlStr)"
+    ''Debug.Print str
+    CopyToClipboard str
+End Sub
+
+Public Sub rsLoop()
+
+    Dim strs As New clsArray
+    strs.Add "Do until rs.EOF"
+    strs.Add vbTab & vbTab & "rs.Movenext"
+    strs.Add vbTab & "Loop"
+    
+    Dim str: str = strs.JoinArr(vbNewLine)
+    CopyToClipboard str
+    
+End Sub
+
 Public Function TableExists(filePath, tableName) As Boolean
     Dim db As DAO.Database
     Dim tbl As DAO.TableDef
@@ -154,12 +188,6 @@ Sub CopyToClipboard(str)
     clipboard.PutInClipboard
 
     ''MsgBox "Copied to clipboard."
-End Sub
-
-Public Sub D(str)
-    str = "Dim " & str & ": " & str & " = rs.Fields(" & Esc(str) & ")"
-    ''Debug.Print str
-    CopyToClipboard str
 End Sub
 
 Public Function PrintFields(tblName As String, Optional contains = "")

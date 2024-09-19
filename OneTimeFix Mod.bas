@@ -634,6 +634,62 @@ Public Function RunOneTimeFixes(Optional PreLinkOnly As Boolean = False)
     
 End Function
 
+Public Sub FixPropertyEntities_2()
+    
+    Dim toBeDeleteds As New clsArray
+    
+    Dim rs As Recordset: Set rs = ReturnRecordset("SELECT * FROM tblPropertyList WHERE IsFavorite")
+    Do Until rs.EOF
+        
+        Dim PropertyListID: PropertyListID = rs.fields("PropertyListID")
+        Dim rs2 As Recordset: Set rs2 = ReturnRecordset("SELECT * FROM qryPropertyEntities WHERE PropertyListID = " & _
+            PropertyListID & " AND EntityCategoryName = ""Seller""")
+        
+        Dim Passed As Boolean: Passed = False
+        
+        Do Until rs2.EOF
+            Dim PropertyEntityID: PropertyEntityID = rs2.fields("PropertyEntityID")
+            Dim EntityName: EntityName = rs2.fields("EntityName")
+            Dim Owner1Name: Owner1Name = rs2.fields("Owner1Name")
+            If Not isFalse(Owner1Name) Then
+                If EntityName = Owner1Name Then
+                    Passed = True
+                End If
+            End If
+            Dim Owner2Name: Owner2Name = rs2.fields("Owner2Name")
+            If Not isFalse(Owner2Name) Then
+                If EntityName = Owner2Name Then
+                    Passed = True
+                End If
+            End If
+            Dim Owner3Name: Owner3Name = rs2.fields("Owner3Name")
+            If Not isFalse(Owner3Name) Then
+                If EntityName = Owner3Name Then
+                    Passed = True
+                End If
+            End If
+            
+            If Passed Then
+                ''Debug.Print Esc(EntityName) & " is a valid owner."
+            Else
+                Debug.Print Esc(EntityName) & " isn't a valid owner."
+                toBeDeleteds.Add PropertyEntityID
+            End If
+        
+            rs2.MoveNext
+        Loop
+        
+        rs.MoveNext
+    Loop
+    
+    If toBeDeleteds.Count = 0 Then Exit Sub
+    Dim item
+    For Each item In toBeDeleteds.arr
+        RunSQL "DELETE FROM tblPropertyEntities WHERE PropertyEntityID = " & item
+    Next item
+    
+End Sub
+
 Public Function MakeBuyerStatusUnique()
 
     Dim FEPath, BEPath As String
