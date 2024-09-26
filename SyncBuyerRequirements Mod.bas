@@ -29,6 +29,7 @@ End Function
 
 Public Function SyncBuyerRequirements(frm As Form, Optional PropertyListID = "")
 
+On Error GoTo ErrHandler:
     If isFalse(PropertyListID) Then
         PropertyListID = frm("PropertyListID")
     End If
@@ -80,5 +81,11 @@ Public Function SyncBuyerRequirements(frm As Form, Optional PropertyListID = "")
           ''makeQuery .SQL
           rowsAffected = .Run
     End With
+    
+    Exit Function
+ErrHandler:
+    If Err.number = 2465 Then
+        Exit Function
+    End If
 
 End Function

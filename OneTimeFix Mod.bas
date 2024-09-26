@@ -230,6 +230,49 @@ Public Function AddMissingFieldsTo_tblEntityMembers()
     
 End Function
 
+Public Function Add_IsOriginalOwner_tblPropertyEntities()
+    
+    Dim FEPath, BEPath As String
+    GetFEAndBE FEPath, BEPath
+    
+    If ExitIfTrue(Not fileExists(BEPath), EscapeString(BEPath) & " can't be located.") Then Exit Function
+    ''ESuburb, EState, EPostcode, ABN, Mobile, Fax
+    Dim sqlStr: sqlStr = "ALTER TABLE tblPropertyEntities " & _
+         "ADD COLUMN IsOriginalOwner YesNo"
+        
+    RunSQLOnBackend BEPath, sqlStr
+    
+End Function
+
+Public Function Set_IsOriginalOwner_tblPropertyEntitites()
+
+    ''Get the earliest timestamp for each tblPropertyEntities for each sellers
+    Dim sqlObj As clsSQL, joinObj As clsJoin, sqlStr, rowsAffected, rs As Recordset
+    Set sqlObj = New clsSQL
+    With sqlObj
+          .Source = "qryPropertyEntities"
+          .AddFilter "EntityCategoryName = ""SELLER"" AND IsFavorite"
+          .fields = "First([Timestamp]) AS EarliestTimestamp, PropertyListID"
+          .GroupBy = "PropertyListID"
+          sqlStr = .sql
+    End With
+    
+    
+    Set rs = ReturnRecordset(sqlStr)
+    Do Until rs.EOF
+        
+        Dim EarliestTimestamp: EarliestTimestamp = rs.fields("EarliestTimestamp")
+        Dim PropertyListID: PropertyListID = rs.fields("PropertyListID")
+        
+        Dim PropertyEntityIDs: PropertyEntityIDs = Elookups("qryPropertyEntities", "[Timestamp] = #" & SQLDate(EarliestTimestamp) & _
+            "# AND PropertyListID = " & PropertyListID & " AND EntityCategoryName = ""SELLER""", "PropertyEntityID")
+        
+        RunSQL "UPDATE tblPropertyEntities SET IsOriginalOwner = -1 WHERE PropertyEntityID In(" & PropertyEntityIDs & ")"
+        rs.MoveNext
+    Loop
+    
+End Function
+
 Public Function AddMissingFieldsTo_tblEntitiesPart3()
     
     Dim FEPath, BEPath As String
@@ -669,6 +712,10 @@ Public Sub FixPropertyEntities_2()
                 End If
             End If
             
+            If EntityName = "-" Then
+                Passed = False
+            End If
+            
             If Passed Then
                 ''Debug.Print Esc(EntityName) & " is a valid owner."
             Else
@@ -682,12 +729,40 @@ Public Sub FixPropertyEntities_2()
         rs.MoveNext
     Loop
     
-    If toBeDeleteds.Count = 0 Then Exit Sub
     Dim item
-    For Each item In toBeDeleteds.arr
-        RunSQL "DELETE FROM tblPropertyEntities WHERE PropertyEntityID = " & item
-    Next item
+    If toBeDeleteds.Count > 0 Then
+        For Each item In toBeDeleteds.arr
+            RunSQL "DELETE FROM tblPropertyEntities WHERE PropertyEntityID = " & item
+        Next item
+    End If
     
+    Set rs = ReturnRecordset("SELECT EntityID,PropertyListID,Count(PropertyEntityID) As RecordCount FROM tblPropertyEntities " & _
+        " GROUP BY EntityID,PropertyListID HAVING Count(PropertyEntityID) > 1")
+    
+    Dim EntityIDs As New clsArray, PropertyListIDs As New clsArray
+    Do Until rs.EOF
+        Dim EntityID: EntityID = rs.fields("EntityID")
+        PropertyListID = rs.fields("PropertyListID")
+        
+        EntityIDs.Add EntityID
+        PropertyListIDs.Add PropertyListID
+        
+        rs.MoveNext
+    Loop
+    
+    If EntityIDs.Count > 0 Then
+        Dim i As Integer: i = 0
+        For Each item In EntityIDs.arr
+            Dim FirstPropertyEntityID: FirstPropertyEntityID = ELookup("tblPropertyEntities", "EntityID = " & item & " AND PropertyListID = " & _
+                PropertyListIDs.arr(i), "PropertyEntityID", "PropertyEntityID")
+                
+            ''Delete the duplicate records
+            RunSQL "DELETE FROM tblPropertyEntities WHERE EntityID = " & item & " AND PropertyListID = " & _
+                PropertyListIDs.arr(i) & " AND PropertyEntityID <> " & FirstPropertyEntityID
+            i = i + 1
+        Next item
+    End If
+
 End Sub
 
 Public Function MakeBuyerStatusUnique()

@@ -2,6 +2,37 @@ Attribute VB_Name = "Lookups"
 Option Compare Database
 Option Explicit
 
+Public Function Elookups(tblName, filterStr, fldName, Optional orderStr As String)
+    
+    Dim rs As Recordset
+    Dim sqlStr As String
+    sqlStr = "SELECT * FROM " & tblName & " WHERE " & filterStr
+    
+    If orderStr <> "" Then
+        sqlStr = sqlStr & " ORDER BY " & orderStr
+    End If
+    
+    Set rs = CurrentDb.OpenRecordset(sqlStr)
+    
+    If rs.EOF Then
+        Elookups = ""
+    Else
+        Dim values As New clsArray
+        Do Until rs.EOF
+            Dim fieldValue: fieldValue = rs.fields(fldName)
+            If Not isFalse(fieldValue) Then
+                values.Add fieldValue, True
+            End If
+            rs.MoveNext
+        Loop
+        
+        Elookups = values.JoinArr(",")
+    End If
+    
+    Exit Function
+    
+End Function
+
 Public Function isPresent(tblName, filterStr) As Boolean
 
     Dim rs As Recordset

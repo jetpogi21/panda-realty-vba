@@ -13,3 +13,11 @@ Public Function SellerMemberCreate(frm As Form, FormTypeID)
     End Select
 
 End Function
+
+Public Function Requery_frmPropertyList_subPropertySeller2()
+
+    If IsFormOpen("frmPropertyList") Then
+        Forms("frmPropertyList")("subPropertySeller2").Form.Requery
+    End If
+    
+End Function

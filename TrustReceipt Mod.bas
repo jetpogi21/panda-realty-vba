@@ -76,7 +76,7 @@ Public Function GetPropertyDirectory(frm As Form, Optional propertyFieldName = "
 End Function
 
 ''For lawrence pass 163360
-Public Function GetPropertyReceiptReceivedFrom(EntityID) As String
+Public Function GetPropertyReceiptReceivedFrom(EntityID, PropertyListID) As String
     
     Dim rs As Recordset: Set rs = ReturnRecordset("SELECT * FROM qryEntities WHERE EntityID = " & EntityID)
     Dim EntityCategoryName: EntityCategoryName = rs.fields("EntityCategoryName")
@@ -101,12 +101,12 @@ Public Function GetPropertyReceiptReceivedFrom(EntityID) As String
             
             GetPropertyReceiptReceivedFrom = GetConciseName(members)
         Case "Seller"
-            ''Get the property id where this seller belonged to
-            Dim PropertyListID: PropertyListID = ELookup("tblPropertyEntities", "EntityID = " & EntityID, "PropertyListID")
-            Set rs = ReturnRecordset("SELECT * FROM qryPropertyEntities WHERE PropertyListID = " & PropertyListID & " AND EntityCategoryName = ""Seller""" & _
+            
+            Set rs = ReturnRecordset("SELECT * FROM qryPropertyEntities WHERE PropertyListID = " & PropertyListID & " AND IsOriginalOwner " & _
                 " AND EntityName <> ""-"" ORDER BY PropertyEntityID")
             Set members = New clsArray
             Do Until rs.EOF
+                ''Debug.Print rs.fields("EntityName")
                 members.Add rs.fields("EntityName")
                 rs.MoveNext
             Loop
@@ -504,7 +504,7 @@ Private Function Build_tblPropertyEntityCaptions(Optional refresh As Boolean = F
     With sqlObj
           .Source = "qryPropertyEntities"
           .AddFilter "IsFavorite"
-          .fields = "PropertyEntityID,EntityID"
+          .fields = "PropertyEntityID,EntityID,PropertyListID"
           .OrderBy = "PropertyEntityID"
           sqlStr = .sql
     End With
@@ -521,7 +521,7 @@ Private Function Build_tblPropertyEntityCaptions(Optional refresh As Boolean = F
     Set sqlObj = New clsSQL
     With sqlObj
           .Source = "madePropertyEntities"
-          .fields = "PropertyEntityID,GetPropertyReceiptReceivedFrom(EntityID) As PropertyEntityCaption"
+          .fields = "PropertyEntityID,GetPropertyReceiptReceivedFrom(EntityID,PropertyListID) As PropertyEntityCaption"
           .OrderBy = "PropertyEntityID"
           sqlStr = .sql
     End With

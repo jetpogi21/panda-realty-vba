@@ -107,6 +107,9 @@ Public Function GetPropertyAlternateLink(PropertyListID) As String
     If isFalse(PropertyListID) Then Exit Function
     
     Dim rs As Recordset: Set rs = ReturnRecordset("SELECT * FROM tblPropertyList WHERE PropertyListID = " & PropertyListID)
+    
+    If rs.EOF Then Exit Function
+    
     Dim StreetAddress: StreetAddress = rs.fields("StreetAddress")
     Dim Suburb: Suburb = rs.fields("Suburb")
     Dim State: State = rs.fields("State")
@@ -346,8 +349,25 @@ Public Function frmPropertyListOnCurrent(frm As Form)
     End If
 
      RefreshPropertyLedger
+     
+    If Not isFalse(PropertyListID) Then
+        ''Update the OriginalOwner of this Property
+        Update_IsOriginalOwner_tblPropertyEntities PropertyListID
+    End If
     
 End Function
+
+Private Sub Update_IsOriginalOwner_tblPropertyEntities(PropertyListID)
+    
+    Dim EarliestTimestamp: EarliestTimestamp = ELookupDate("qryPropertyEntities", "PropertyListID = " & PropertyListID & _
+        " AND EntityCategoryName = ""Seller""", "[Timestamp]", "[Timestamp]")
+    
+    Dim PropertyEntityIDs: PropertyEntityIDs = Elookups("qryPropertyEntities", "[Timestamp] = #" & SQLDate(EarliestTimestamp) & _
+        "# AND PropertyListID = " & PropertyListID & " AND EntityCategoryName = ""SELLER""", "PropertyEntityID")
+    
+    RunSQL "UPDATE tblPropertyEntities SET IsOriginalOwner = -1 WHERE PropertyEntityID In(" & PropertyEntityIDs & ")"
+    
+End Sub
 
 Public Sub InsertTo_tblEventTimelines(frm As Form)
     

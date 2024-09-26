@@ -64,7 +64,7 @@ Public Function DashboardLoad(frm As Form)
     
     UpdateEntitiesIsSeller
     FixEntityMembers
-    InsertAnyMissingPropertyEntitiesFromOwn
+    ''InsertAnyMissingPropertyEntitiesFromOwn
     SyncScheduledViewingDateToCalendar
 
     Dim UserID, sqlObj As New clsSQL

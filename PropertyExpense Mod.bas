@@ -119,7 +119,7 @@ Public Function GetSellerSolicitorName(PropertyListID, Optional Association = "S
     Dim EntityID:  EntityID = ELookup("qryPropertyEntities", "EntityCategoryName = ""Contact"" AND " & _
         "ContactCategoryName = ""Solicitor"" AND PropertyListID = " & PropertyListID & " AND Association = " & Esc(Association), "EntityID", "PropertyEntityID")
     If isFalse(EntityID) Then Exit Function
-    GetSellerSolicitorName = GetPropertyReceiptReceivedFrom(EntityID)
+    GetSellerSolicitorName = GetPropertyReceiptReceivedFrom(EntityID, PropertyListID)
     
 End Function
 
@@ -130,7 +130,7 @@ Public Function GetTaxInvoiceSellerName(PropertyListID) As String
     
     If isFalse(EntityID) Then Exit Function
     
-    GetTaxInvoiceSellerName = GetPropertyReceiptReceivedFrom(EntityID)
+    GetTaxInvoiceSellerName = GetPropertyReceiptReceivedFrom(EntityID, PropertyListID)
     
 End Function
 
